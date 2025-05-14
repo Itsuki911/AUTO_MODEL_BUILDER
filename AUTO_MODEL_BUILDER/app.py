@@ -40,12 +40,34 @@ def view_papers_used():
             if not st.session_state.task:
                 st.warning("Please define your task in 'Requirements Definition' first.")
                 return
-            papers = fetch_research_papers(st.session_state.task)
+            
+            with st.spinner("Fetching papers..."):
+                # Fetch research papers using the task
+                papers = fetch_research_papers(st.session_state.task)
+            
+            if not papers:
+                st.info("No relevant papers found.")
+                return
+            
+            # Display the fetched papers
+            st.write("### Recommended Papers:")
+            for i, paper in enumerate(papers, start=1):
+                st.write(f"**{i}. {paper['title']}**")
+                st.write(f"[Read more]({paper['link']})")
+            
+            # Summarize and translate the papers
             summaries = summarize_and_translate(papers)
-            st.write(summaries)
+            st.write("### Summaries:")
+            for summary in summaries:
+                st.write(f"**Title:** {summary['title']}")
+                st.write(f"**Link:** [Read more]({summary['link']})")
+                st.write(f"**Summary:** {summary['summary']}")
+                st.write(f"**Translated Summary:** {summary['translated_summary']}")
+                st.write("---")
+        
         except Exception as e:
             handle_error(e)
-            st.error("An error occurred while fetching papers.")
+            st.error(f"An error occurred while fetching papers: {str(e)}")
 
 def github_integration():
     """Handle the GitHub integration section."""
